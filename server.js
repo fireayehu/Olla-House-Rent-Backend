@@ -1,27 +1,26 @@
-const express = require("express");
-const mongodb = require("mongodb");
+const mongoose = require('mongoose');
 const dotenv = require("dotenv");
-const mainRouter = require("./src/index");
+const app = require('./src/app');
 
-dotenv.config();
+dotenv.config({ path: './.env' });
 
-const app = express();
-app.use(express.json());
 
 /** connect to database */
-mongodb.connect(process.env.LOCAL_DB_URI,
+const DB_REMOTE = process.env.DB_REMOTE.replace("<PASSWORD>", process.env.DB_PASSWORD);
+mongoose.connect(process.env.LOCAL_DB_URI,
     {
         useNewUrlParser: true,
-        useUnifiedTopology: true
-    }).then(r => {
+        useCreateIndex: true,
+        useFindAndModify: false,
+        useUnifiedTopology: true,
+
+    }).then(conn => {
         console.log("Database connected!")
     }).catch(e => console.log("Database connection error!"));
 
-app.use('/api/v1', mainRouter);
 
 const PORT = process.env.PORT || 5440;
+
 app.listen(PORT, () => {
     console.log(`server listening on port : ${PORT}`);
 });
-
-module.exports = app;

@@ -1,7 +1,13 @@
+const userModel = require('../models/userModel');
+const { signJwtToken, verifyJwtToken } = require('../utils/processJWT');
+
+
 exports.login = (req, res) => {
-    res.send("this is all login route");
+
 }
 
-exports.register = (req, res) => {
-    res.send("this is all register route");
+exports.register = async (req, res, next) => {
+    const { firstname, lastname, email, password } = req.body;
+
+
 }
