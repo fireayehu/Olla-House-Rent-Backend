@@ -1,5 +1,8 @@
-const userModel = require('../models/userModel');
+const User = require('../models/userModel');
+const catchAsyncError = require('../utils/catchAsyncError');
 
-exports.getAllUsers = (req, res) => {
+
+
+exports.getAllUsers = catchAsyncError((req, res) => {
     res.send("this is all users route");
-}
+})

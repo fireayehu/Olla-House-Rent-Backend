@@ -3,6 +3,10 @@ const monogoSanitize = require('express-mongo-sanitize');
 const cors = require('cors');
 const morgan = require('morgan');
 
+// import global error handler 
+const AppError = require('./utils/appError');
+const globalErrorHandler = require('./controllers/errorController');
+
 //import routes
 const userRouter = require('./routes/usersRoute')
 const authRouter = require('./routes/authRoute');
@@ -31,10 +35,15 @@ app.use('/api/v1/auth', authRouter);
  * handle unregisterd routes
  */
 app.use("*", (req, res, next) => {
-    res.status(404).json({
-        status: "error",
-        message: `The requested url ${req.originalUrl} does not exist`,
-    });
+    next(new AppError(`The requested url ${req.originalUrl} does not exist`, 404))
 });
 
-module.app = app;
+/**
+ * general error handling middleware
+ * express redirects route to this function
+ * if error occured i.e argument passed into
+ * the next() function.    
+ */
+app.use(globalErrorHandler);
+
+module.exports = app;

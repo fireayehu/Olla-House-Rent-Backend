@@ -1,5 +1,5 @@
-const { Schema, Model } = require('mongoose');
-const bycrypt = require('bycrypt');
+const { Schema, model } = require('mongoose');
+const bcrypt = require('bcrypt');
 const validator = require('validator');
 /**
  * User Schema 
@@ -11,14 +11,14 @@ const userSchema = new Schema({
     firstname: {
         type: String,
         required: [true, "first name is required"],
-        minlength: [2, 'User name should contain atleast 2 characters!'],
-        maxlength: [24, 'User name should contain at maximum 24 characters!']
+        minlength: [2, 'first name should contain atleast 2 characters!'],
+        maxlength: [24, 'first name should contain at maximum 24 characters!']
     },
     lastname: {
         type: String,
         required: [true, "last name is required"],
-        minlength: [2, 'User name should contain atleast 2 characters!'],
-        maxlength: [24, 'User name should contain at maximum 24 characters!']
+        minlength: [2, 'last name should contain atleast 2 characters!'],
+        maxlength: [24, 'last name should contain at maximum 24 characters!']
     },
     email: {
         type: String,
@@ -56,7 +56,7 @@ const userSchema = new Schema({
     },
     active: {
         type: Boolean,
-        default: false,
+        default: true,
         select: false
     }
 });
@@ -69,9 +69,9 @@ userSchema.pre('save', async function (next) {
     if (!this.isModified('password')) return next();
 
     //set password change date is password is not set for first time
-    if (!this.isNew('password')) this.passwordChangedAt = Date.now() - 1000;
+    if (!this.isNew) this.passwordChangedAt = Date.now() - 1000;
 
-    this.password = await bycrypt.hash(this.password, 12);
+    this.password = await bcrypt.hash(this.password, 12);
     next();
 });
 
@@ -83,7 +83,14 @@ userSchema.pre(/^find/, function (next) {
     next();
 });
 
+/**
+ * @method
+ * Custom method for password comparision
+ */
+userSchema.methods.comparePassword = async (inputPassword, storedPassword) => {
+    return bcrypt.compare(inputPassword, storedPassword);
+}
 
-const User = new Model('User', userSchema);
+const User = model('User', userSchema);
 
 module.exports = User;

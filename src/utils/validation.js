@@ -4,7 +4,7 @@ const userSignupInputRule = () => {
     return [
         body('firstname').not().isEmpty().withMessage("first name is required").isLength({ min: 2 }),
         body('lastname').not().isEmpty().withMessage("last name is required").isLength({ min: 2 }),
-        body('email').isEmail().normalizeEmail(),
+        body('email').isEmail(),
         body('phone').not().isEmpty().withMessage("phone number is required").isLength({ min: 10, max: 14 }),
         body('password').not().isEmpty().withMessage("password is required").isLength({ min: 6 }),
     ];
@@ -12,7 +12,7 @@ const userSignupInputRule = () => {
 
 const userSigninInputRule = () => {
     return [
-        body('email').isEmail().normalizeEmail(),
+        body('email').isEmail(),
         body('password').not().isEmpty().withMessage("password is required").isLength({ min: 6 }),
     ];
 }

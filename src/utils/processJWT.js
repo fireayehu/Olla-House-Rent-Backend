@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
 
+
+
 exports.signJwtToken = async (payload) => {
     const payload_data = {
         ...payload,
@@ -18,3 +20,4 @@ exports.verifyJwtToken = async (token) => {
         algorithms: ['HS256'],
     });
 }
+

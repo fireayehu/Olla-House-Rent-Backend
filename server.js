@@ -6,7 +6,7 @@ dotenv.config({ path: './.env' });
 
 
 /** connect to database */
-const DB_REMOTE = process.env.DB_REMOTE.replace("<PASSWORD>", process.env.DB_PASSWORD);
+const DB_REMOTE = process.env.REMOTE_DB_URI.replace("<PASSWORD>", process.env.DB_PASSWORD);
 mongoose.connect(process.env.LOCAL_DB_URI,
     {
         useNewUrlParser: true,
