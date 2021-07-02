@@ -1,13 +1,31 @@
 const express = require('express');
-const { getAllUsers } = require('../controllers/usersController');
+const usersController = require('../controllers/user/usersController');
+const protectRoute = require('../controllers/auth/authController').protectRoute;
+const { restrictRole } = require('../middlewares/authorizeRoute');
+
+const userRouter = express.Router({ mergeParams: true });
+
+userRouter.route('/').get(protectRoute, restrictRole(['admin']), usersController.getAllUsers); //not ideal unless for the admin
+
+// users access
+userRouter.use(protectRoute);
+userRouter.get('/me', usersController.getMe, usersController.getUser)
+
+userRouter.patch('/me/update', usersController.updateMe)
+
+userRouter.patch('/me/changePassword', usersController.updateMyPassword)
+
+userRouter.delete('/me/delete', usersController.deleteMe)
 
 
-
-const userRouter = express.Router();
-
+userRouter.use(restrictRole(['admin']));
 userRouter
-    .route('/')
-    .get(getAllUsers)
+    .route('/:id')
+    .get(restrictRole('admin'), usersController.getUser)
+    .patch(usersController.updateUser)
+    .delete(usersController.deleteUser);
 
 
 module.exports = userRouter;
+
+

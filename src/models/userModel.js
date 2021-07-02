@@ -1,11 +1,10 @@
 const { Schema, model } = require('mongoose');
 const bcrypt = require('bcrypt');
 const validator = require('validator');
+
+
 /**
  * User Schema 
- * @param {String} firstname - first name of the user
- * @param {String} lastname - last name of the user 
- * @param {string} password - user password
  */
 const userSchema = new Schema({
     firstname: {
@@ -35,7 +34,10 @@ const userSchema = new Schema({
     },
     role: {
         type: String,
-        enum: ['user', 'admin'],
+        enum: {
+            values: ['user', 'broker', 'admin'],
+            message: '{VALUE} role is not supported'
+        },
         default: 'user'
     },
     avatar: {
@@ -54,12 +56,20 @@ const userSchema = new Schema({
         default: Date.now(),
         validate: [validator.isDate, "wrong date format"]
     },
+    soldItems: {
+        type: Number,
+        default: 0
+    },
     active: {
         type: Boolean,
         default: true,
         select: false
     }
-});
+},
+    {
+        toJSON: { virtuals: true },
+        toObject: { virtuals: true },
+    });
 
 /**
  * Pre database save operations 
@@ -90,6 +100,22 @@ userSchema.pre(/^find/, function (next) {
 userSchema.methods.comparePassword = async (inputPassword, storedPassword) => {
     return bcrypt.compare(inputPassword, storedPassword);
 }
+
+userSchema.methods.checkPasswordChange = (jwtTimeStamp) => {
+    if (this.passwordChangedAt) {
+        const passChangeTime = parseInt(this.passwordChangedAt.getTime() / 1000, 10);
+        return jwtTimeStamp < passChangeTime;
+    }
+    return false
+}
+
+/**
+ * Get only active user accounts
+ */
+userSchema.pre(/^find/, function (next) {
+    this.find({ active: { $ne: false } });
+    next();
+});
 
 const User = model('User', userSchema);
 
